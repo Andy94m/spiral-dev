@@ -1,4 +1,4 @@
-\# Spiral Dev 🌀
+# Spiral Dev 🌀
 
 
 
@@ -8,21 +8,21 @@ cada tema retoma lo aprendido y suma dificultad progresiva.
 
 
 
-\## Stack
+## Stack
 
-\- Backend: C# .NET 9 Web API + EF Core
+- Backend: C# .NET 9 Web API + EF Core
 
-\- Frontend: React + TypeScript + Vite
+- Frontend: React + TypeScript + Vite
 
-\- Base de datos: PostgreSQL (Supabase)
+- Base de datos: PostgreSQL (Supabase)
 
 
 
-\## Estructura
+## Estructura
 
-\- `src/SpiralDev.Api` — API REST
+- `src/SpiralDev.Api` — API REST
 
-\- `src/SpiralDev.UI` — Aplicación React
+- `src/SpiralDev.UI` — Aplicación React
 
 
 
