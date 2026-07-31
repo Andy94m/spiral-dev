@@ -1,0 +1,20 @@
+# Node
+node_modules/
+dist/
+*.local
+
+# .NET
+bin/
+obj/
+*.user
+
+# VS Code
+.vs/
+.idea/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Build outputs
+build/
