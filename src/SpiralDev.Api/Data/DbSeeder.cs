@@ -12,11 +12,10 @@ public static class DbSeeder
 {
     public static void Seed(SpiralDbContext context)
     {
-        // Si ya hay cursos, no sembramos de nuevo
-        if (context.Courses.Any())
+        // Seed original: corre solo si falta el capítulo 2 (Fundamentos de C).
+        // Así, el seed incremental de abajo agrega lo nuevo sin duplicar lo ya sembrado.
+        if (!context.Topics.Any(t => t.Title == "Fundamentos de C"))
         {
-            return;
-        }
 
         // ===== CARRERA: C =====
         var courseC = new Course
@@ -410,5 +409,393 @@ public static class DbSeeder
         context.SaveChanges();
 
         Console.WriteLine("✅ Seed completado: carrera C con capítulo 'Fundamentos de C' (4 lecciones, 6 ejercicios)");
+        }
+
+        // ===== SEED INCREMENTAL: Capítulo 3 "Control de flujo" (idempotente) =====
+        // Corre siempre; si el capítulo ya existe, no hace nada.
+        if (!context.Topics.Any(t => t.Title == "Control de flujo"))
+        {
+            var courseC = context.Courses.Single(c => c.Name == "C");
+
+            var topicControlFlujo = new Topic
+            {
+                Order = 2,
+                Title = "Control de flujo",
+                Lessons = []
+            };
+
+            // ===== LECCIÓN 1: if-else =====
+            var lessonIfElse = new Lesson
+            {
+                Order = 1,
+                Title = "Toma de decisiones: if-else",
+                ContentMarkdown = """
+                    ## Toma de decisiones
+
+                    El procesador ejecuta las instrucciones en **secuencia natural**. Cuando un programa debe elegir entre dos caminos, rompe esa secuencia con un **salto condicional**: el salto se produce solo si se cumple una condición.
+
+                    La sentencia `if-else` implementa la toma de decisión:
+
+                    ```
+                    if (condición)
+                        sentencia A;
+                    [else
+                        sentencia B;]
+                    ```
+
+                    Los corchetes indican que la parte `else` es **opcional**.
+
+                    ### Sentencias simples y compuestas
+                    - **Simple**: una sola sentencia.
+                    - **Compuesta**: varias sentencias encerradas entre llaves `{ }`.
+
+                    ```c
+                    if (condición)
+                    {
+                        sentencia A;
+                        sentencia B;
+                    }
+                    else
+                    {
+                        sentencia C;
+                    }
+                    ```
+
+                    > **Importante**: la tabulación muestra qué sentencias están dentro de cada bloque. Y ojo con las llaves: si un bloque tiene más de una sentencia y olvidás las llaves, las sentencias extra quedarán **fuera del bloque** (bug clásico).
+
+                    ### Ejemplo
+
+                    ```c
+                    #include <stdio.h>
+
+                    int main()
+                    {
+                        int edad = 18;
+
+                        if (edad >= 18)
+                            printf("Mayor de edad\n");
+                        else
+                            printf("Menor de edad\n");
+
+                        return 0;
+                    }
+                    ```
+                    """,
+                Exercises = []
+            };
+
+            // ===== LECCIÓN 2: Condiciones y operadores =====
+            var lessonCondiciones = new Lesson
+            {
+                Order = 2,
+                Title = "Condiciones y operadores",
+                ContentMarkdown = """
+                    ## Condiciones y operadores
+
+                    Una condición es una **expresión que da como resultado verdadero o falso**.
+
+                    ### Operadores relacionales
+                    Comparan dos valores (son binarios):
+
+                    | Operador | Significado |
+                    |----------|-------------|
+                    | `==` | Igual que |
+                    | `!=` | Distinto de |
+                    | `>` | Mayor que |
+                    | `<` | Menor que |
+                    | `>=` | Mayor o igual |
+                    | `<=` | Menor o igual |
+
+                    El resultado de una operación relacional es un valor **booleano**. En C, `0` es FALSO y `1` es VERDADERO:
+
+                    ```c
+                    int F;
+                    F = 4 > 2;   /* F toma el valor 1 (verdadero) */
+                    F = 4 == 2;  /* F toma el valor 0 (falso) */
+                    ```
+
+                    > **Dato clave**: C considera que **todo valor numérico distinto de cero es VERDADERO** y que cero es FALSO. Se puede evaluar cualquier expresión numérica como condición.
+
+                    ### Condiciones compuestas — operadores lógicos
+                    Cuando una condición tiene más de una parte se usan los operadores lógicos:
+
+                    | Operador | Tipo | Función |
+                    |----------|------|---------|
+                    | `!` | monario | Inversor lógico (NOT) |
+                    | `&&` | binario | AND (y) |
+                    | `\|\|` | binario | OR (o) |
+
+                    Tabla de verdad del AND (`A && B`):
+
+                    | A | B | Resultado |
+                    |---|---|-----------|
+                    | F | F | F |
+                    | F | V | F |
+                    | V | F | F |
+                    | V | V | V |
+
+                    Ejemplo:
+
+                    ```c
+                    if (edad >= 18 && tiene_dni)
+                        printf("Puede votar\n");
+                    ```
+                    """,
+                Exercises = []
+            };
+
+            // ===== LECCIÓN 3: Decisiones anidadas y escalonador =====
+            var lessonEscalonador = new Lesson
+            {
+                Order = 3,
+                Title = "Decisiones anidadas y escalonador",
+                ContentMarkdown = """
+                    ## Decisiones anidadas y escalonador
+
+                    Los bloques de una toma de decisión pueden contener otras tomas de decisión: son **decisiones anidadas**. Hay que ser cuidadoso con las aperturas y cierres de llaves `{ }`.
+
+                    ### El escalonador (else if)
+                    Cuando cada `else` contiene otro `if`, se forma un **escalonador**: cada nuevo nivel de decisión se ubica en la salida por "no" del anterior.
+
+                    ```c
+                    if (condición 1)
+                        sentencia 1;
+                    else if (condición 2)
+                        sentencia 2;
+                    else if (condición 3)
+                        sentencia 3;
+                    else
+                        sentencia 4;
+                    ```
+
+                    ### Ejemplo: clasificar socios por edad
+                    Infantil (< 14), Cadete (14-20), Activo (21-59), Senior (60 o más):
+
+                    ```c
+                    #include <stdio.h>
+
+                    int main()
+                    {
+                        int EDAD;
+
+                        printf("EDAD DEL SOCIO = ");
+                        scanf("%d", &EDAD);
+
+                        if (EDAD > 59)
+                            printf("SOCIO SENIOR\n");
+                        else if (EDAD > 20)
+                            printf("SOCIO ACTIVO\n");
+                        else if (EDAD > 13)
+                            printf("SOCIO CADETE\n");
+                        else
+                            printf("SOCIO INFANTIL\n");
+
+                        return 0;
+                    }
+                    ```
+
+                    > **Nota**: en el ejemplo se omiten las llaves porque cada bloque tiene una sola sentencia. Conviene ponerlas siempre: si después agregás una sentencia a un bloque y olvidás las llaves, quedará fuera del bloque.
+                    """,
+                Exercises = []
+            };
+
+            // ===== LECCIÓN 4: Selector switch-case =====
+            var lessonSwitch = new Lesson
+            {
+                Order = 4,
+                Title = "Selector switch-case",
+                ContentMarkdown = """
+                    ## Selector switch-case
+
+                    El `switch-case` es un caso particular del escalonador: compara el valor de una variable contra una serie de **constantes** y desvía el flujo cuando hay coincidencia.
+
+                    ### Restricciones
+                    - Las condiciones se resuelven **solamente por igualdad**
+                    - La variable a comparar debe ser de tipo **enumerable** (`int`, `char`, etc.)
+                    - Los valores comparados deben ser **constantes** del programa
+
+                    Estas pautas limitan su uso, prácticamente, a la implementación de **menús**.
+
+                    ```c
+                    switch (variable)
+                    {
+                        case constante1:
+                            sentencia 1;
+                            break;
+                        case constante2:
+                            sentencia 2;
+                            break;
+                        default:
+                            sentencia por defecto;
+                            break;
+                    }
+                    ```
+
+                    ### La sentencia `break`
+                    Provoca un salto al final del bloque. **Sin `break`, el flujo continúa** ejecutando los `case` siguientes (trampa clásica).
+
+                    ### Ejemplo: menú de 3 opciones
+
+                    ```c
+                    #include <stdio.h>
+
+                    int main()
+                    {
+                        int SEL;
+
+                        printf("1. OPCION 1\n");
+                        printf("2. OPCION 2\n");
+                        printf("3. OPCION 3\n");
+                        printf("Ingrese su opción: ");
+                        scanf("%d", &SEL);
+
+                        switch (SEL)
+                        {
+                            case 1:
+                                printf("Ud. seleccionó OPCION 1\n");
+                                break;
+                            case 2:
+                                printf("Ud. seleccionó OPCION 2\n");
+                                break;
+                            case 3:
+                                printf("Ud. seleccionó OPCION 3\n");
+                                break;
+                            default:
+                                printf("Ud. seleccionó otra cosa\n");
+                                break;
+                        }
+
+                        return 0;
+                    }
+                    ```
+                    """,
+                Exercises = []
+            };
+
+            // ===== EJERCICIOS del capítulo 3 =====
+
+            // Desafío de conceptos — operadores lógicos (lección 2)
+            lessonCondiciones.Exercises.Add(new()
+            {
+                Order = 1,
+                Type = ExerciseType.MultipleChoice,
+                Title = "El inversor lógico",
+                Statement = "Conceptos: operadores lógicos.",
+                Question = "¿Cuál es el valor de F?\n\nint F;\nF = !(5 > 3);",
+                Options = "1;0;5;Error de compilación",
+                CorrectOptionIndex = 1,
+                StarterCode = "",
+                ExpectedOutput = "",
+                RequiredTopicIds = [1]
+            });
+
+            // Desafío de código — el mayor de 3 números (lección 1)
+            lessonIfElse.Exercises.Add(new()
+            {
+                Order = 1,
+                Type = ExerciseType.CodeWriting,
+                Title = "El mayor de 3 números",
+                Statement = "Ingresar tres números enteros e indicar cuál es el mayor. Resolverlo con una condición compuesta (usando los operadores && del capítulo).",
+                StarterCode = """
+                    #include <stdio.h>
+
+                    int main()
+                    {
+                        int A, B, C;
+
+                        printf("Ingrese tres números: ");
+                        scanf("%d %d %d", &A, &B, &C);
+
+                        // Completar: mostrar el mayor de los tres
+                        // Sugerencia: if (A > B && A > C) ...
+
+                        return 0;
+                    }
+                    """,
+                ExpectedOutput = "Ingrese tres números: \nEl mayor es 8\n",
+                RequiredTopicIds = [1]
+            });
+
+            // Desafío de código — clasificar socios por edad (lección 3)
+            lessonEscalonador.Exercises.Add(new()
+            {
+                Order = 1,
+                Type = ExerciseType.CodeWriting,
+                Title = "Clasificar socio por edad",
+                Statement = "Ingresar la edad de un socio e imprimir su categoría: Infantil (menor de 14), Cadete (entre 14 y 20), Activo (entre 21 y 59), Senior (60 o más).",
+                StarterCode = """
+                    #include <stdio.h>
+
+                    int main()
+                    {
+                        int EDAD;
+
+                        printf("EDAD DEL SOCIO = ");
+                        scanf("%d", &EDAD);
+
+                        // Completar con el escalonador (else if)
+                        // if (EDAD > 59) printf("SOCIO SENIOR\n");
+                        // else if (EDAD > 20) printf("SOCIO ACTIVO\n");
+                        // ...
+
+                        return 0;
+                    }
+                    """,
+                ExpectedOutput = "EDAD DEL SOCIO = \nSOCIO SENIOR\n",
+                RequiredTopicIds = [1]
+            });
+
+            // Desafío de código — menú con switch (lección 4)
+            lessonSwitch.Exercises.Add(new()
+            {
+                Order = 1,
+                Type = ExerciseType.CodeWriting,
+                Title = "Menú con switch",
+                Statement = "Implementar un menú de 3 opciones con switch-case. El usuario ingresa 1, 2 o 3 y se informa la elección; cualquier otro valor muestra 'otra cosa'.",
+                StarterCode = """
+                    #include <stdio.h>
+
+                    int main()
+                    {
+                        int SEL;
+
+                        printf("1. OPCION 1\n");
+                        printf("2. OPCION 2\n");
+                        printf("3. OPCION 3\n");
+                        printf("Ingrese su opción: ");
+                        scanf("%d", &SEL);
+
+                        // Completar con switch (SEL) { case 1: ... break; ... default: ... }
+
+                        return 0;
+                    }
+                    """,
+                ExpectedOutput = "1. OPCION 1\n2. OPCION 2\n3. OPCION 3\nIngrese su opción: \nUd. seleccionó OPCION 2\n",
+                RequiredTopicIds = [1]
+            });
+
+            // Desafío de conceptos — la trampa del break (lección 4)
+            lessonSwitch.Exercises.Add(new()
+            {
+                Order = 2,
+                Type = ExerciseType.MultipleChoice,
+                Title = "La trampa del break",
+                Statement = "Conceptos: switch-case.",
+                Question = "¿Qué imprime este código si SEL = 1?\n\nswitch (SEL) {\n    case 1: printf(\"A\");\n    case 2: printf(\"B\");\n             break;\n    default: printf(\"C\");\n}",
+                Options = "A;AB;C;ABC",
+                CorrectOptionIndex = 1,
+                StarterCode = "",
+                ExpectedOutput = "",
+                RequiredTopicIds = [1]
+            });
+
+            // Ensamblamos el capítulo 3
+            topicControlFlujo.Lessons.AddRange(
+                [lessonIfElse, lessonCondiciones, lessonEscalonador, lessonSwitch]);
+            courseC.Topics.Add(topicControlFlujo);
+
+            context.SaveChanges();
+            Console.WriteLine("✅ Seed incremental: capítulo 'Control de flujo' agregado (4 lecciones, 5 ejercicios)");
+        }
     }
 }
