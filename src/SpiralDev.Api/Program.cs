@@ -5,7 +5,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    // Los enums viajan como texto ("CodeWriting" en vez de 1) — más legible para quien consume la API
+    .AddJsonOptions(options =>
+        options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter()));
 // Swagger UI en /swagger (Swashbuckle) — documentación interactiva de la API
 builder.Services.AddSwaggerGen();
 
