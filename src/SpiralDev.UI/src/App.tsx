@@ -1,11 +1,6 @@
 import { useEffect, useState } from 'react'
+import CourseCard, { type Course } from './CourseCard'
 import './App.css'
-
-interface Course {
-  id: number
-  name: string
-  description: string
-}
 
 function App() {
   const [courses, setCourses] = useState<Course[]>([])
@@ -34,11 +29,7 @@ function App() {
 
       <div className="courses">
         {courses.map((course) => (
-          <div key={course.id} className="course-card">
-            <h2>{course.name}</h2>
-            <p>{course.description}</p>
-            <button type="button">Comenzar</button>
-          </div>
+          <CourseCard key={course.id} course={course} />
         ))}
       </div>
     </main>
