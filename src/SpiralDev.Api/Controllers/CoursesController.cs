@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using SpiralDev.Api.Data;
 using SpiralDev.Api.Models;
 
 namespace SpiralDev.Api.Controllers;
@@ -7,28 +9,23 @@ namespace SpiralDev.Api.Controllers;
 [Route("api/[controller]")]
 public class CoursesController : ControllerBase
 {
+    private readonly SpiralDbContext _context;
+
+    public CoursesController(SpiralDbContext context)
+    {
+        _context = context;
+    }
+
     /// <summary>
-    /// Devuelve las carreras de aprendizaje disponibles.
+    /// Devuelve las carreras de aprendizaje disponibles, leídas de la base de datos.
     /// GET /api/courses
     /// </summary>
     [HttpGet]
-    public ActionResult<IEnumerable<Course>> GetCourses()
+    public async Task<ActionResult<IEnumerable<Course>>> GetCourses()
     {
-        var courses = new[]
-        {
-            new Course
-            {
-                Id = 1,
-                Name = "C",
-                Description = "Bajo nivel: memoria, punteros, hardware"
-            },
-            new Course
-            {
-                Id = 2,
-                Name = "C#",
-                Description = "Orientado a objetos: POO, LINQ, .NET"
-            }
-        };
+        var courses = await _context.Courses
+            .OrderBy(c => c.Id)
+            .ToListAsync();
 
         return Ok(courses);
     }

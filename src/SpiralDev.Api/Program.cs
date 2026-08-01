@@ -6,8 +6,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+// Swagger UI en /swagger (Swashbuckle) — documentación interactiva de la API
+builder.Services.AddSwaggerGen();
 
 // Registra el DbContext con PostgreSQL.
 // La connection string vive en User Secrets (ConnectionStrings:Default).
@@ -30,7 +30,8 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
@@ -40,5 +41,14 @@ app.UseCors("AllowFrontend");
 app.UseAuthorization();
 
 app.MapControllers();
+
+// En desarrollo, sembramos la base de datos con el contenido del libro
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<SpiralDbContext>();
+    db.Database.Migrate();      // Aplica migraciones pendientes
+    DbSeeder.Seed(db);          // Carga el contenido inicial
+}
 
 app.Run();

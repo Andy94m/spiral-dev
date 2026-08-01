@@ -18,3 +18,7 @@ Thumbs.db
 
 # Build outputs
 build/
+
+# Herramientas locales del agente (privado, no subir a GitHub)
+.memory/
+.engram/
