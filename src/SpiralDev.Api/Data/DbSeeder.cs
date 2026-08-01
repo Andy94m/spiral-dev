@@ -797,5 +797,375 @@ public static class DbSeeder
             context.SaveChanges();
             Console.WriteLine("✅ Seed incremental: capítulo 'Control de flujo' agregado (4 lecciones, 5 ejercicios)");
         }
+
+        // ===== SEED INCREMENTAL: Capítulo 4 "Iteraciones" (idempotente) =====
+        // Corre siempre; si el capítulo ya existe, no hace nada.
+        if (!context.Topics.Any(t => t.Title == "Iteraciones"))
+        {
+            var courseC = context.Courses.Single(c => c.Name == "C");
+
+            var topicIteraciones = new Topic
+            {
+                Order = 3,
+                Title = "Iteraciones",
+                Lessons = []
+            };
+
+            // ===== LECCIÓN 1: El lazo while =====
+            var lessonWhile = new Lesson
+            {
+                Order = 1,
+                Title = "El lazo while",
+                ContentMarkdown = """
+                    ## El lazo while
+
+                    Una **iteración** es la ejecución repetida de una secuencia de sentencias mientras se cumpla una condición. El lazo `while` evalúa la condición **antes** de cada vuelta:
+
+                    ```c
+                    while (condición)
+                        sentencia;
+                    ```
+
+                    ### ¡Cuidado con el lazo infinito!
+                    La condición de permanencia debe **modificarse dentro del lazo** (dejar de cumplirse en algún momento). Si no, el lazo nunca termina y el programa se "cuelga".
+
+                    ### Elemento centinela
+                    Es un valor especial que marca el final de los datos. **No forma parte de los datos válidos**: es un "no-valor" que sirve para saber cuándo frenar el ingreso.
+
+                    ### Ejemplo: sumar valores hasta un negativo
+
+                    ```c
+                    #include <stdio.h>
+
+                    int main()
+                    {
+                        int ACUM = 0, VALOR;
+
+                        printf("\nIngrese valores enteros.\n");
+                        printf("\nFinaliza con un negativo\n\n");
+                        scanf("%d", &VALOR);
+
+                        while (VALOR >= 0)
+                        {
+                            ACUM = ACUM + VALOR;
+                            scanf("%d", &VALOR);
+                        }
+
+                        printf("\nLa suma de los valores es %d\n\n", ACUM);
+                        return 0;
+                    }
+                    ```
+
+                    > **Estructura típica del bucle**: ingresar un dato → verificar en la condición → procesar → volver a ingresar dentro del lazo.
+                    """,
+                Exercises = []
+            };
+
+            // ===== LECCIÓN 2: do-while y condición ejecutiva =====
+            var lessonDoWhile = new Lesson
+            {
+                Order = 2,
+                Title = "do-while y condición ejecutiva",
+                ContentMarkdown = """
+                    ## El lazo do-while
+
+                    El lazo `do-while` evalúa la condición **después** de ejecutar el cuerpo: **siempre se ejecuta al menos una vez**.
+
+                    ```c
+                    do
+                    {
+                        sentencia;
+                    } while (condición);
+                    ```
+
+                    Es más compacto para el caso del centinela: ahorra el ingreso del dato previo al lazo.
+
+                    ### Condición ejecutiva (efecto secundario)
+                    La condición puede contener **sentencias ejecutables** cuyo resultado se evalúa. Se llama *efecto secundario* (side effect): la evaluación de la expresión genera ejecución de código y posibles modificaciones de variables.
+
+                    ```c
+                    while (getchar() != 'Q')
+                        ;   // sentencia nula: el trabajo lo hace la condición
+                    ```
+
+                    ### Comparación vs asignación (¡trampa clásica!)
+                    - `A == 2` → **comparación**: ¿A es igual a 2? (no modifica A)
+                    - `A = 2` → **asignación**: A pasa a valer 2 (y el resultado siempre es "verdadero" si el valor es distinto de cero)
+                    """,
+                Exercises = []
+            };
+
+            // ===== LECCIÓN 3: El lazo for =====
+            var lessonFor = new Lesson
+            {
+                Order = 3,
+                Title = "El lazo for y la sentencia continue",
+                ContentMarkdown = """
+                    ## El lazo for
+
+                    El `for` es un caso particular del `while`, pensado para **iteraciones con número fijo de vueltas**:
+
+                    ```c
+                    for (Inicialización; Condición; Incremento)
+                        sentencia;
+                    ```
+
+                    - **Inicialización**: se ejecuta **una sola vez**, al inicio del lazo
+                    - **Condición**: se evalúa al inicio de cada vuelta (la cantidad mínima de vueltas es cero)
+                    - **Incremento**: se ejecuta al final de cada vuelta, justo antes de re-evaluar la condición
+
+                    ### Ejemplo: promedio de 25 valores
+
+                    ```c
+                    #include <stdio.h>
+                    #define N 25
+
+                    int main()
+                    {
+                        int ACUM = 0, I, VALOR;
+                        float PROM;
+
+                        for (I = 0; I < N; I++)
+                        {
+                            scanf("%d", &VALOR);
+                            ACUM = ACUM + VALOR;
+                        }
+
+                        PROM = (float)ACUM / N;   // casting: sin él, la división entera trunca
+                        printf("El promedio es %.2f\n", PROM);
+                        return 0;
+                    }
+                    ```
+
+                    > **Convención del libro**: las variables enteras de uso general se nombran I, J, K...
+
+                    ### La sentencia continue
+                    Conduce el flujo directamente al **incremento** (pasa a la próxima vuelta), saltando el resto del cuerpo:
+
+                    ```c
+                    for (i = 0; i < 10; i++)
+                    {
+                        if (i == 2 || i == 6) continue;   // "saltea" el 2 y el 6
+                        printf("\n%d", i);
+                    }
+                    ```
+
+                    ### ¿for o while?
+                    - `for`: cuando se conoce **previamente** el número de iteraciones
+                    - `while`: cuando el número es **incierto**
+                    - Es cuestión de estilo: cualquiera puede reemplazar al otro
+                    """,
+                Exercises = []
+            };
+
+            // ===== LECCIÓN 4: Desarrollo top-down y bottom-up =====
+            var lessonDiseno = new Lesson
+            {
+                Order = 4,
+                Title = "Desarrollo top-down y bottom-up",
+                ContentMarkdown = """
+                    ## Desarrollo top-down y bottom-up
+
+                    Dos técnicas para construir programas, muy útiles en problemas de ingeniería.
+
+                    ### Top-down (descendente)
+                    Se empieza por la **descripción de mayor nivel** (el enunciado) y se la **divide en partes cada vez más simples** hasta que cada una pueda resolverse directamente. A esto se llama **refinamiento**.
+
+                    Ejemplo: mostrar los números primos menores que 10.000
+                    1. **Nivel I**: "imprimir los números primos menores que 10.000"
+                    2. **Nivel II**: "recorrer NUM de 2 a 10.000; si es primo, mostrarlo"
+                    3. **Nivel III**: "¿cómo sé si NUM es primo?" → bandera PRIMO + probar divisores DIV de 2 a NUM-1
+
+                    ```c
+                    for (NUM = 2; NUM < 10000; NUM++)
+                    {
+                        PRIMO = 1;
+                        for (DIV = 2; DIV < NUM; DIV++)
+                            if (!(NUM % DIV))
+                                PRIMO = 0;
+                        if (PRIMO)
+                            printf("%8d", NUM);
+                    }
+                    ```
+
+                    > El libro propone depuraciones: solo impares, cortar al encontrar divisor (`&& PRIMO`), y limitar DIV a `sqrt(NUM)` — el tiempo pasó de segundos a milisegundos.
+
+                    ### Bottom-up (ascendente)
+                    Se empieza por los **módulos más simples** y se agregan niveles de complejidad. Gran ventaja: **el código se prueba en cada paso**, con pocas líneas adicionales, y cada paso funciona antes de agregar el siguiente.
+
+                    Ejemplo: densidad de primos por rango
+                    1. ¿Es NUM divisible por DIV?
+                    2. ¿Es N primo?
+                    3. Contar primos entre INICIO y FIN
+                    4. Repetir por rangos y promediar
+
+                    > **Consejo del libro**: top-down genera módulos muy específicos; bottom-up genera módulos más generales y reutilizables. Ambos son herramientas útiles.
+                    """,
+                Exercises = []
+            };
+
+            // ===== EJERCICIOS del capítulo 4 =====
+
+            // Desafío de código — problema propuesto 1 (lección 1)
+            lessonWhile.Exercises.Add(new()
+            {
+                Order = 1,
+                Type = ExerciseType.CodeWriting,
+                Title = "Contar pares hasta un negativo",
+                Statement = "Se ingresarán números enteros positivos. Determinar cuántos de ellos son pares. El ingreso finaliza con un número negativo (elemento centinela).",
+                StarterCode = """
+                    #include <stdio.h>
+
+                    int main()
+                    {
+                        int VALOR, CONT = 0;
+
+                        printf("Ingrese valores enteros (finaliza con negativo):\n");
+                        scanf("%d", &VALOR);
+
+                        // Completar: mientras VALOR >= 0,
+                        // si es par (VALOR % 2 == 0) incrementar CONT,
+                        // y volver a ingresar
+
+                        printf("Cantidad de pares: %d\n", CONT);
+                        return 0;
+                    }
+                    """,
+                ExpectedOutput = "Ingrese valores enteros (finaliza con negativo):\nCantidad de pares: 2\n",
+                RequiredTopicIds = [1, 2]
+            });
+
+            // Desafío de código — problema propuesto 5 (lección 2)
+            lessonDoWhile.Exercises.Add(new()
+            {
+                Order = 1,
+                Type = ExerciseType.CodeWriting,
+                Title = "La clave con 3 intentos",
+                Statement = "Permitir el ingreso de una clave numérica entera (23645). Solo se permiten 3 intentos; al tercer intento fallido mostrar una advertencia y terminar.",
+                StarterCode = """
+                    #include <stdio.h>
+
+                    int main()
+                    {
+                        int CLAVE, INTENTOS = 0;
+
+                        do
+                        {
+                            printf("Ingrese la clave: ");
+                            scanf("%d", &CLAVE);
+                            INTENTOS++;
+
+                            if (CLAVE == 23645)
+                            {
+                                printf("CLAVE CORRECTA\n");
+                                return 0;
+                            }
+                            printf("CLAVE INCORRECTA\n");
+
+                        } while (INTENTOS < 3);
+
+                        printf("ACCESO DENEGADO\n");
+                        return 0;
+                    }
+                    """,
+                ExpectedOutput = "Ingrese la clave: CLAVE INCORRECTA\nIngrese la clave: CLAVE INCORRECTA\nIngrese la clave: CLAVE INCORRECTA\nACCESO DENEGADO\n",
+                RequiredTopicIds = [1, 2]
+            });
+
+            // Desafío de código — problema propuesto 6 (lección 3)
+            lessonFor.Exercises.Add(new()
+            {
+                Order = 1,
+                Type = ExerciseType.CodeWriting,
+                Title = "Número perfecto",
+                Statement = "Determinar si un número entero positivo ingresado es perfecto: un número es perfecto cuando es igual a la suma de todos sus divisores exactos, con excepción de él mismo. Ejemplo: 6 = 1 + 2 + 3.",
+                StarterCode = """
+                    #include <stdio.h>
+
+                    int main()
+                    {
+                        int N, DIV, SUMA = 0;
+
+                        printf("Ingrese un numero: ");
+                        scanf("%d", &N);
+
+                        // Completar: con un lazo for, sumar los divisores de N
+                        // (DIV de 1 a N/2; si N % DIV == 0, sumar DIV)
+
+                        if (SUMA == N)
+                            printf("%d ES PERFECTO\n", N);
+                        else
+                            printf("%d NO ES PERFECTO\n", N);
+                        return 0;
+                    }
+                    """,
+                ExpectedOutput = "Ingrese un numero: \n6 ES PERFECTO\n",
+                RequiredTopicIds = [1, 2]
+            });
+
+            // Desafío de código — problema propuesto 7 (lección 4)
+            lessonDiseno.Exercises.Add(new()
+            {
+                Order = 1,
+                Type = ExerciseType.CodeWriting,
+                Title = "Los primeros 5 números perfectos",
+                Statement = "Mostrar los primeros 5 números perfectos. Pista: los primeros son 6, 28, 496, 8128 y 33550336 — podés usar el desafío anterior dentro de un lazo que vaya probando números.",
+                StarterCode = """
+                    #include <stdio.h>
+
+                    int main()
+                    {
+                        int ENCONTRADOS = 0, NUM = 2;
+
+                        // Completar: mientras ENCONTRADOS < 5,
+                        // determinar si NUM es perfecto (suma de divisores == NUM)
+                        // y si lo es, mostrarlo e incrementar ENCONTRADOS
+                        // luego probar con NUM++
+
+                        return 0;
+                    }
+                    """,
+                ExpectedOutput = "6\n28\n496\n8128\n33550336\n",
+                RequiredTopicIds = [1, 2]
+            });
+
+            // Desafío de conceptos — la sentencia continue (lección 3)
+            lessonFor.Exercises.Add(new()
+            {
+                Order = 2,
+                Type = ExerciseType.MultipleChoice,
+                Title = "La sentencia continue",
+                Statement = "Conceptos: lazos y continue.",
+                Question = "¿Qué imprime este código?\n\nfor (i = 0; i < 10; i++) {\n    if (i == 2 || i == 6) continue;\n    printf(\"%d\", i);\n}",
+                Options = "0123456789;01345789;02468;13579",
+                CorrectOptionIndex = 1,
+                StarterCode = "",
+                ExpectedOutput = "",
+                RequiredTopicIds = [1, 2]
+            });
+
+            // Desafío de conceptos — comparación vs asignación (lección 2)
+            lessonDoWhile.Exercises.Add(new()
+            {
+                Order = 2,
+                Type = ExerciseType.MultipleChoice,
+                Title = "Comparación vs asignación",
+                Statement = "Conceptos: condiciones.",
+                Question = "¿Qué hace este código?\n\nint F = 0;\nif (F = 2)\n    printf(\"VERDADERO\");",
+                Options = "Imprime VERDADERO, porque F = 2 asigna el valor 2 (distinto de cero es verdadero);No imprime nada, porque F valía 0;Imprime VERDADERO porque 2 es igual a F;Error de compilación",
+                CorrectOptionIndex = 0,
+                StarterCode = "",
+                ExpectedOutput = "",
+                RequiredTopicIds = [1, 2]
+            });
+
+            // Ensamblamos el capítulo 4
+            topicIteraciones.Lessons.AddRange(
+                [lessonWhile, lessonDoWhile, lessonFor, lessonDiseno]);
+            courseC.Topics.Add(topicIteraciones);
+
+            context.SaveChanges();
+            Console.WriteLine("✅ Seed incremental: capítulo 'Iteraciones' agregado (4 lecciones, 6 ejercicios)");
+        }
     }
 }
