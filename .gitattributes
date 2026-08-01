@@ -1,0 +1,9 @@
+# Normaliza los finales de línea según el sistema operativo de cada dev
+* text=auto
+
+# Archivos específicos con reglas claras
+*.cs     text=auto
+*.ts     text=auto
+*.tsx    text=auto
+*.json   text=auto
+*.md     text=auto
