@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router'
+import Markdown from 'react-markdown'
 
 interface Exercise {
   id: number
@@ -42,8 +43,7 @@ function LessonPage() {
 
       {lesson && (
         <article className="lesson-content">
-          {/* TODO (próximo paso): renderizar Markdown con react-markdown */}
-          <pre>{lesson.contentMarkdown}</pre>
+          <Markdown>{lesson.contentMarkdown}</Markdown>
         </article>
       )}
     </main>

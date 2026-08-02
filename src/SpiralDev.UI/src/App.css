@@ -73,3 +73,117 @@ button {
 button:hover {
   background: #7dd3fc;
 }
+
+/* ===== Contenido de lección (Markdown renderizado) ===== */
+
+.lesson-content {
+  margin-top: 1.5rem;
+  font-size: 1.125rem;
+  line-height: 1.75;
+  color: #cbd5e1;
+  /* Flexbox vertical: cada hijo ocupa todo el ancho por defecto,
+     y solo los <pre> (las cajas de código) se centran horizontalmente */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Todo lo que NO sea caja de código vuelve a ocupar el 100% */
+.lesson-content > * {
+  width: 100%;
+}
+
+.lesson-content h2 {
+  margin-top: 2.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 1.75rem;
+  color: #f1f5f9;
+}
+
+.lesson-content h3 {
+  margin-top: 2rem;
+  margin-bottom: 0.5rem;
+  font-size: 1.35rem;
+  color: #e2e8f0;
+}
+
+.lesson-content p {
+  margin: 0 0 1.25rem;
+}
+
+.lesson-content ul,
+.lesson-content ol {
+  margin: 0 0 1.25rem;
+  padding-left: 1.75rem;
+}
+
+.lesson-content li {
+  margin-bottom: 0.4rem;
+}
+
+/* Código en línea (dentro de un párrafo) */
+.lesson-content code {
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 0.9em;
+  background: #1e293b;
+  color: #7dd3fc;
+  padding: 0.15em 0.4em;
+  border-radius: 6px;
+}
+
+/* Bloque de código (fences ```) */
+.lesson-content pre {
+  background: #0b1120;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+  margin: 0 0 1.25rem;
+  width: 80%;
+  flex-shrink: 0;
+}
+
+.lesson-content pre code {
+  background: none;
+  color: #e2e8f0;
+  padding: 0;
+  font-size: 0.95em;
+  text-align: left;
+  /* Neutraliza el "display: inline-flex" del template (index.css) que
+     rompe el ancho de las cajas de código */
+  display: block;
+}
+
+/* Citas del libro */
+.lesson-content blockquote {
+  margin: 0 0 1.25rem;
+  padding: 0.75rem 1.25rem;
+  border-left: 4px solid #38bdf8;
+  background: #1e293b;
+  border-radius: 0 8px 8px 0;
+  color: #94a3b8;
+}
+
+.lesson-content blockquote p {
+  margin: 0;
+}
+
+/* Tablas (si el contenido las trae) */
+.lesson-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 1.25rem;
+  font-size: 1rem;
+}
+
+.lesson-content th,
+.lesson-content td {
+  border: 1px solid #334155;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+
+.lesson-content th {
+  background: #1e293b;
+  color: #f1f5f9;
+}
