@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SpiralDev.Api.Data;
+using SpiralDev.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +27,15 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
+});
+
+// Motor de ejecución de código (Judge0 público, sin key).
+// La URL vive en configuración; si el proveedor cambia, se toca acá y nada más.
+builder.Services.AddHttpClient<ICodeRunner, Judge0CodeRunner>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["Judge0:BaseUrl"]
+        ?? "https://ce.judge0.com");
+    client.Timeout = TimeSpan.FromSeconds(45); // compilar + ejecutar C puede tardar unos segundos
 });
 
 var app = builder.Build();

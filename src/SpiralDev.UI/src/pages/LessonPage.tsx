@@ -1,11 +1,18 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router'
 import Markdown from 'react-markdown'
+import CodePlayground from '../components/CodePlayground'
+import MultipleChoice from '../components/MultipleChoice'
 
 interface Exercise {
   id: number
+  order: number
   type: string
-  question: string
+  title: string
+  statement: string
+  question?: string
+  options?: string
+  starterCode?: string
 }
 
 interface LessonDetail {
@@ -42,9 +49,34 @@ function LessonPage() {
       {!error && !lesson && <p>Cargando lección...</p>}
 
       {lesson && (
-        <article className="lesson-content">
-          <Markdown>{lesson.contentMarkdown}</Markdown>
-        </article>
+        <>
+          <article className="lesson-content">
+            <Markdown>{lesson.contentMarkdown}</Markdown>
+          </article>
+
+          {lesson.exercises.length > 0 && (
+            <section className="lesson-challenges">
+              <h2>🧩 Desafíos</h2>
+              {lesson.exercises.map((ex) => (
+                <div key={ex.id} className="challenge-card">
+                  <h3>{ex.title}</h3>
+                  {ex.statement && <p className="challenge-statement">{ex.statement}</p>}
+
+                  {ex.type === 'MultipleChoice' && (
+                    <MultipleChoice exercise={ex} />
+                  )}
+
+                  {ex.type === 'CodeWriting' && (
+                    <>
+                      <p className="challenge-question">{ex.question}</p>
+                      <CodePlayground starterCode={ex.starterCode ?? ''} />
+                    </>
+                  )}
+                </div>
+              ))}
+            </section>
+          )}
+        </>
       )}
     </main>
   )
